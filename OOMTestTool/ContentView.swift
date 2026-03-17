@@ -16,7 +16,7 @@ struct ContentView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
+            ScrollView(.vertical, showsIndicators: true) {
                 VStack(spacing: 20) {
                     // 上次崩溃提醒
                     if let session = lastSession, session.wasOOM {
@@ -435,7 +435,7 @@ struct AllocationLogCard: View {
             HStack {
                 Image(systemName: "list.bullet.rectangle")
                     .font(.title3)
-                    .foregroundColor(.indigo)
+                    .foregroundColor(.purple)
                 
                 Text("分配日志")
                     .font(.headline)
