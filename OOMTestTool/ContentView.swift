@@ -175,8 +175,7 @@ struct MemoryMonitorCard: View {
             HStack {
                 Image(systemName: "waveform.path.ecg")
                     .font(.title3)
-                    .foregroundStyle(.green)
-                    .symbolEffect(.pulse)
+                    .foregroundColor(.green)
                 
                 Text("实时监控")
                     .font(.headline)
@@ -200,8 +199,7 @@ struct MemoryMonitorCard: View {
             VStack(spacing: 4) {
                 Text(String(format: "%.1f", allocator.allocatedMB))
                     .font(.system(size: 56, weight: .bold, design: .rounded))
-                    .foregroundStyle(memoryColor)
-                    .contentTransition(.numericText())
+                    .foregroundColor(memoryColor)
                 
                 Text("MB 已分配")
                     .font(.subheadline)
@@ -274,7 +272,7 @@ struct ConfigurationCard: View {
             HStack {
                 Image(systemName: "slider.horizontal.3")
                     .font(.title3)
-                    .foregroundStyle(.accentColor)
+                    .foregroundColor(.accentColor)
                 
                 Text("测试参数")
                     .font(.headline)
