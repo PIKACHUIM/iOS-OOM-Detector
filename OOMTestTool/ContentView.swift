@@ -59,9 +59,7 @@ struct ContentView: View {
             }
             .background(Color(.systemGroupedBackground))
             .navigationTitle("OOM 测试工具")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Menu {
+            .navigationBarItems(trailing: Menu {
                         Button {
                             allSessions = logger.getAllSessionSummaries()
                             showHistory = true
@@ -77,9 +75,7 @@ struct ContentView: View {
                     } label: {
                         Image(systemName: "ellipsis.circle")
                             .font(.title3)
-                    }
-                }
-            }
+                    })
             .sheet(isPresented: $showHistory) {
                 HistoryView(sessions: allSessions)
             }
@@ -540,11 +536,7 @@ struct HistoryView: View {
             }
             .navigationTitle("历史记录")
             .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("完成") { presentationMode.wrappedValue.dismiss() }
-                }
-            }
+            .navigationBarItems(trailing: Button("完成") { presentationMode.wrappedValue.dismiss() })
         }
     }
 }
