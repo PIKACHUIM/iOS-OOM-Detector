@@ -11,64 +11,47 @@ env:
   PROJECT_NAME: OOMTestTool
   SCHEME: OOMTestTool
   XCODEPROJ: OOMTestTool.xcodeproj
-  DESTINATION_IOS: "platform=iOS Simulator,name=iPhone 16,OS=latest"
-  DESTINATION_IPAD: "platform=iOS Simulator,name=iPad Pro 13-inch (M4),OS=latest"
 
 jobs:
 
   # ──────────────────────────────────────────
-  # Job 1: 构建 + 测试（iOS Simulator）
+  # Job 1: 构建（iOS Simulator）
   # ──────────────────────────────────────────
   build-ios:
     name: 🔨 Build iOS
-    runs-on: macos-15
+    runs-on: macos-latest
     timeout-minutes: 30
-
-    strategy:
-      matrix:
-        destination:
-          - "platform=iOS Simulator,name=iPhone 16,OS=latest"
-          - "platform=iOS Simulator,name=iPad Pro 13-inch (M4),OS=latest"
 
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4
 
-      - name: 🔧 Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
-
       - name: 📋 Show Build Environment
         run: |
           xcodebuild -version
-          xcodebuild -showsdks | head -20
+          xcode-select -p
+          xcrun simctl list devices available | head -30
           swift --version
 
-      - name: 🧹 Clean Build Folder
-        run: |
-          xcodebuild clean \
-            -project "${{ env.XCODEPROJ }}" \
-            -scheme "${{ env.SCHEME }}" \
-            -destination '${{ matrix.destination }}' \
-            | xcpretty || true
-
-      - name: 🔨 Build
+      - name: 🔨 Build for iOS Simulator
         run: |
           xcodebuild build \
             -project "${{ env.XCODEPROJ }}" \
             -scheme "${{ env.SCHEME }}" \
-            -destination '${{ matrix.destination }}' \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
             -configuration Debug \
-            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            | xcpretty && exit ${PIPESTATUS[0]}
+            ONLY_ACTIVE_ARCH=NO
 
   # ──────────────────────────────────────────
   # Job 2: 归档（Release Archive）
   # ──────────────────────────────────────────
   archive:
     name: 📦 Archive
-    runs-on: macos-15
+    runs-on: macos-latest
     needs: build-ios
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     timeout-minutes: 30
@@ -77,21 +60,19 @@ jobs:
       - name: 📥 Checkout
         uses: actions/checkout@v4
 
-      - name: 🔧 Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
-
-      - name: 📦 Archive for iOS (Generic)
+      - name: 📦 Archive for iOS Simulator
         run: |
           xcodebuild archive \
             -project "${{ env.XCODEPROJ }}" \
             -scheme "${{ env.SCHEME }}" \
-            -destination "generic/platform=iOS" \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
             -configuration Release \
             -archivePath "${{ runner.temp }}/${{ env.PROJECT_NAME }}.xcarchive" \
-            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            | xcpretty && exit ${PIPESTATUS[0]}
+            ONLY_ACTIVE_ARCH=NO
 
       - name: 📤 Upload Archive Artifact
         uses: actions/upload-artifact@v4
