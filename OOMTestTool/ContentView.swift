@@ -514,7 +514,7 @@ struct InfoRow: View {
 
 struct HistoryView: View {
     let sessions: [OOMLogger.SessionSummary]
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.presentationMode) private var presentationMode
     
     var body: some View {
         NavigationView {
@@ -535,14 +535,14 @@ struct HistoryView: View {
                             SessionRow(session: session)
                         }
                     }
-                    .listStyle(GroupedListStyle())
+                    .listStyle(.insetGrouped)
                 }
             }
             .navigationTitle("历史记录")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("完成") { dismiss() }
+                    Button("完成") { presentationMode.wrappedValue.dismiss() }
                 }
             }
         }
