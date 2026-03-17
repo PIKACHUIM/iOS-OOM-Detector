@@ -15,7 +15,7 @@ env:
 jobs:
 
   # ──────────────────────────────────────────
-  # Job 1: 构建（iOS Simulator）
+  # Job 1: 构建验证（iOS Simulator）
   # ──────────────────────────────────────────
   build-ios:
     name: 🔨 Build iOS
@@ -30,7 +30,6 @@ jobs:
         run: |
           xcodebuild -version
           xcode-select -p
-          xcrun simctl list devices available | head -30
           swift --version
 
       - name: 🔨 Build for iOS Simulator
@@ -47,10 +46,10 @@ jobs:
             ONLY_ACTIVE_ARCH=NO
 
   # ──────────────────────────────────────────
-  # Job 2: 归档（Release Archive）
+  # Job 2: 归档并导出 IPA
   # ──────────────────────────────────────────
   archive:
-    name: 📦 Archive
+    name: 📦 Archive & Export IPA
     runs-on: macos-latest
     needs: build-ios
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
@@ -60,23 +59,53 @@ jobs:
       - name: 📥 Checkout
         uses: actions/checkout@v4
 
-      - name: 📦 Archive for iOS Simulator
+      - name: 📋 Show Build Environment
+        run: |
+          xcodebuild -version
+          xcode-select -p
+
+      - name: 📦 Archive for iOS Device
         run: |
           xcodebuild archive \
             -project "${{ env.XCODEPROJ }}" \
             -scheme "${{ env.SCHEME }}" \
-            -sdk iphonesimulator \
-            -destination 'generic/platform=iOS Simulator' \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
             -configuration Release \
             -archivePath "${{ runner.temp }}/${{ env.PROJECT_NAME }}.xcarchive" \
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_ENTITLEMENTS="" \
             ONLY_ACTIVE_ARCH=NO
 
-      - name: 📤 Upload Archive Artifact
+      - name: 📱 Create unsigned IPA
+        run: |
+          # 从 xcarchive 中手动打包 IPA（无需签名）
+          ARCHIVE_PATH="${{ runner.temp }}/${{ env.PROJECT_NAME }}.xcarchive"
+          IPA_DIR="${{ runner.temp }}/ipa_output"
+          mkdir -p "$IPA_DIR/Payload"
+
+          # 复制 .app 到 Payload 目录
+          cp -r "$ARCHIVE_PATH/Products/Applications/${{ env.PROJECT_NAME }}.app" "$IPA_DIR/Payload/"
+
+          # 打包成 IPA
+          cd "$IPA_DIR"
+          zip -r -9 "${{ env.PROJECT_NAME }}.ipa" Payload/
+
+          echo "✅ IPA created: $IPA_DIR/${{ env.PROJECT_NAME }}.ipa"
+          ls -lh "$IPA_DIR/${{ env.PROJECT_NAME }}.ipa"
+
+      - name: 📤 Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: OOMTestTool-archive
+          name: OOMTestTool-IPA
+          path: ${{ runner.temp }}/ipa_output/${{ env.PROJECT_NAME }}.ipa
+          retention-days: 30
+
+      - name: 📤 Upload xcarchive
+        uses: actions/upload-artifact@v4
+        with:
+          name: OOMTestTool-xcarchive
           path: ${{ runner.temp }}/${{ env.PROJECT_NAME }}.xcarchive
           retention-days: 14
