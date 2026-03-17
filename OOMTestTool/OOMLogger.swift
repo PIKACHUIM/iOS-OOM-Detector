@@ -28,6 +28,21 @@ final class OOMLogger {
         let holdTimeMS: Double
         let wasOOM: Bool         // true = 没有正常 stop 日志
         let entries: [LogEntry]
+        
+        // iOS 13 兼容的时间格式化
+        var endTimeFormatted: String {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .short
+            formatter.timeStyle = .medium
+            return formatter.string(from: endTime)
+        }
+        
+        var startTimeFormatted: String {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .short
+            formatter.timeStyle = .short
+            return formatter.string(from: startTime)
+        }
     }
     
     // MARK: - Private

@@ -15,7 +15,7 @@ struct ContentView: View {
     private let logger = OOMLogger.shared
     
     var body: some View {
-        NavigationStack {
+        NavigationView {
             ScrollView {
                 VStack(spacing: 20) {
                     // 上次崩溃提醒
@@ -127,12 +127,12 @@ struct LastCrashBanner: View {
             HStack(spacing: 10) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.title2)
-                    .foregroundStyle(.white)
+                    .foregroundColor(.white)
                 
                 Text("检测到上次 OOM 崩溃")
                     .font(.headline)
                     .fontWeight(.bold)
-                    .foregroundStyle(.white)
+                    .foregroundColor(.white)
                 
                 Spacer()
             }
@@ -148,7 +148,7 @@ struct LastCrashBanner: View {
                         value: "\(String(format: "%.0f", session.holdTimeMS)) ms",
                         tint: .white)
                 InfoRow(icon: "calendar", label: "崩溃时间",
-                        value: session.endTime.formatted(date: .abbreviated, time: .standard),
+                        value: session.endTimeFormatted,
                         tint: .white)
             }
         }
@@ -191,7 +191,7 @@ struct MemoryMonitorCard: View {
                         .shadow(color: .green, radius: 4)
                     Text("运行中")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                 }
             }
             
@@ -203,7 +203,7 @@ struct MemoryMonitorCard: View {
                 
                 Text("MB 已分配")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
@@ -248,13 +248,13 @@ struct StatItem: View {
         VStack(spacing: 6) {
             Image(systemName: icon)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundColor(.secondary)
             Text(value)
                 .font(.system(.body, design: .rounded))
                 .fontWeight(.semibold)
             Text(title)
                 .font(.caption2)
-                .foregroundStyle(.secondary)
+                .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity)
     }
@@ -289,7 +289,7 @@ struct ConfigurationCard: View {
                             .font(.subheadline)
                     } icon: {
                         Image(systemName: "memorychip")
-                            .foregroundStyle(.blue)
+                            .foregroundColor(.blue)
                     }
                     
                     Spacer()
@@ -307,7 +307,7 @@ struct ConfigurationCard: View {
                         
                         Text("MB")
                             .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                             .frame(width: 28)
                     }
                 }
@@ -321,7 +321,7 @@ struct ConfigurationCard: View {
                             .font(.subheadline)
                     } icon: {
                         Image(systemName: "clock")
-                            .foregroundStyle(.purple)
+                            .foregroundColor(.purple)
                     }
                     
                     Spacer()
@@ -339,7 +339,7 @@ struct ConfigurationCard: View {
                         
                         Text("ms")
                             .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                             .frame(width: 28)
                     }
                 }
@@ -387,14 +387,14 @@ struct ActionButton: View {
                     endPoint: .trailing
                 )
             )
-            .foregroundStyle(.white)
+            .foregroundColor(.white)
             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             .shadow(
                 color: (isRunning ? Color.red : Color.accentColor).opacity(0.4),
                 radius: 8, y: 4
             )
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
@@ -411,12 +411,12 @@ struct StatusBadge: View {
                     .scaleEffect(0.8)
             } else {
                 Image(systemName: "info.circle")
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
             
             Text(text)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundColor(.secondary)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
@@ -435,7 +435,7 @@ struct AllocationLogCard: View {
             HStack {
                 Image(systemName: "list.bullet.rectangle")
                     .font(.title3)
-                    .foregroundStyle(.indigo)
+                    .foregroundColor(.indigo)
                 
                 Text("分配日志")
                     .font(.headline)
@@ -445,7 +445,7 @@ struct AllocationLogCard: View {
                 
                 Text("最近 \(history.count) 条")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
             
             LazyVStack(spacing: 6) {
@@ -453,11 +453,11 @@ struct AllocationLogCard: View {
                     HStack {
                         Text("#\(record.blockIndex)")
                             .font(.system(.caption, design: .monospaced))
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                             .frame(width: 44, alignment: .leading)
                         
                         ProgressView(value: min(record.totalMB / 1024, 1.0))
-                            .tint(progressColor(for: record.totalMB))
+                            .accentColor(progressColor(for: record.totalMB))
                         
                         Text("\(String(format: "%.1f", record.totalMB)) MB")
                             .font(.system(.caption, design: .monospaced))
@@ -493,19 +493,19 @@ struct InfoRow: View {
         HStack(spacing: 10) {
             Image(systemName: icon)
                 .font(.caption)
-                .foregroundStyle(tint.opacity(0.8))
+                .foregroundColor(tint.opacity(0.8))
                 .frame(width: 20)
             
             Text(label)
                 .font(.subheadline)
-                .foregroundStyle(tint.opacity(0.8))
+                .foregroundColor(tint.opacity(0.8))
             
             Spacer()
             
             Text(value)
                 .font(.system(.subheadline, design: .rounded))
                 .fontWeight(.semibold)
-                .foregroundStyle(tint)
+                .foregroundColor(tint)
         }
     }
 }
@@ -517,16 +517,16 @@ struct HistoryView: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        NavigationStack {
+        NavigationView {
             Group {
                 if sessions.isEmpty {
                     VStack(spacing: 16) {
                         Image(systemName: "tray")
                             .font(.system(size: 48))
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                         Text("暂无测试记录")
                             .font(.headline)
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
@@ -535,7 +535,7 @@ struct HistoryView: View {
                             SessionRow(session: session)
                         }
                     }
-                    .listStyle(.insetGrouped)
+                    .listStyle(GroupedListStyle())
                 }
             }
             .navigationTitle("历史记录")
@@ -564,14 +564,14 @@ struct SessionRow: View {
                     Text(session.wasOOM ? "OOM 崩溃" : "正常结束")
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundStyle(session.wasOOM ? .red : .green)
+                        .foregroundColor(session.wasOOM ? .red : .green)
                 }
                 
                 Spacer()
                 
-                Text(session.startTime.formatted(date: .abbreviated, time: .shortened))
+                Text(session.startTimeFormatted)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
             
             HStack(spacing: 16) {
@@ -582,7 +582,7 @@ struct SessionRow: View {
                 } icon: {
                     Image(systemName: "memorychip")
                         .font(.caption2)
-                        .foregroundStyle(.blue)
+                        .foregroundColor(.blue)
                 }
                 
                 Label {
@@ -592,7 +592,7 @@ struct SessionRow: View {
                 } icon: {
                     Image(systemName: "square.stack.3d.up")
                         .font(.caption2)
-                        .foregroundStyle(.purple)
+                        .foregroundColor(.purple)
                 }
                 
                 Label {
@@ -602,7 +602,7 @@ struct SessionRow: View {
                 } icon: {
                     Image(systemName: "square.split.2x2")
                         .font(.caption2)
-                        .foregroundStyle(.orange)
+                        .foregroundColor(.orange)
                 }
             }
         }
