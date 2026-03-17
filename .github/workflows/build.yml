@@ -7,18 +7,13 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
-env:
-  PROJECT_NAME: OOMTestTool
-  SCHEME: OOMTestTool
-  XCODEPROJ: OOMTestTool.xcodeproj
-
 jobs:
 
   # ──────────────────────────────────────────
-  # Job 1: 构建验证（iOS Simulator）
+  # Job 1: 构建验证（SwiftUI 版，模拟器）
   # ──────────────────────────────────────────
-  build-ios:
-    name: 🔨 Build iOS
+  build:
+    name: 🔨 Build — SwiftUI
     runs-on: macos-latest
     timeout-minutes: 30
 
@@ -29,29 +24,39 @@ jobs:
       - name: 📋 Show Build Environment
         run: |
           xcodebuild -version
-          xcode-select -p
           swift --version
+          xcodebuild -showsdks | head -20
+          echo "Default Xcode path: $(xcode-select -p)"
 
       - name: 🔨 Build for iOS Simulator
         run: |
-          xcodebuild build \
-            -project "${{ env.XCODEPROJ }}" \
-            -scheme "${{ env.SCHEME }}" \
+          # Use -arch arm64 to prevent x86_64 compilation on Apple Silicon runners
+          set -o pipefail
+          xcodebuild clean build \
+            -project OOMTestTool.xcodeproj \
+            -scheme OOMTestTool \
             -sdk iphonesimulator \
             -destination 'generic/platform=iOS Simulator' \
             -configuration Debug \
+            ARCHS=arm64 \
+            VALID_ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
+            SWIFT_VERSION=5 \
+            SWIFT_STRICT_CONCURRENCY=minimal \
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            ONLY_ACTIVE_ARCH=NO
+            ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS=NO \
+            ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS=NO \
+            | tee /tmp/build.log || (echo "=== FULL BUILD LOG ===" && cat /tmp/build.log && exit 1)
 
   # ──────────────────────────────────────────
-  # Job 2: 归档并导出 IPA
+  # Job 2: SwiftUI 版归档 + IPA（iOS 13+）
   # ──────────────────────────────────────────
-  archive:
-    name: 📦 Archive & Export IPA
+  archive-swiftui:
+    name: 📦 IPA — SwiftUI (iOS 13+)
     runs-on: macos-latest
-    needs: build-ios
+    needs: build
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     timeout-minutes: 30
 
@@ -59,53 +64,112 @@ jobs:
       - name: 📥 Checkout
         uses: actions/checkout@v4
 
-      - name: 📋 Show Build Environment
+      - name: 📦 Archive
         run: |
-          xcodebuild -version
-          xcode-select -p
-
-      - name: 📦 Archive for iOS Device
-        run: |
-          xcodebuild archive \
-            -project "${{ env.XCODEPROJ }}" \
-            -scheme "${{ env.SCHEME }}" \
+          xcodebuild clean archive \
+            -project OOMTestTool.xcodeproj \
+            -scheme OOMTestTool \
             -sdk iphoneos \
             -destination 'generic/platform=iOS' \
             -configuration Release \
-            -archivePath "${{ runner.temp }}/${{ env.PROJECT_NAME }}.xcarchive" \
+            -archivePath "${{ runner.temp }}/OOMTestTool.xcarchive" \
+            ARCHS=arm64 \
+            VALID_ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGN_ENTITLEMENTS="" \
-            ONLY_ACTIVE_ARCH=NO
+            IPHONEOS_DEPLOYMENT_TARGET=13.0 \
+            ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS=NO \
+            ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS=NO
 
-      - name: 📱 Create unsigned IPA
+      - name: 🔍 Verify MinimumOSVersion
         run: |
-          # 从 xcarchive 中手动打包 IPA（无需签名）
-          ARCHIVE_PATH="${{ runner.temp }}/${{ env.PROJECT_NAME }}.xcarchive"
-          IPA_DIR="${{ runner.temp }}/ipa_output"
+          INFO_PLIST="${{ runner.temp }}/OOMTestTool.xcarchive/Products/Applications/OOMTestTool.app/Info.plist"
+          echo "📱 MinimumOSVersion:"
+          /usr/libexec/PlistBuddy -c "Print :MinimumOSVersion" "$INFO_PLIST" || echo "N/A"
+
+      - name: 📱 Create IPA
+        run: |
+          IPA_DIR="${{ runner.temp }}/ipa_swiftui"
           mkdir -p "$IPA_DIR/Payload"
-
-          # 复制 .app 到 Payload 目录
-          cp -r "$ARCHIVE_PATH/Products/Applications/${{ env.PROJECT_NAME }}.app" "$IPA_DIR/Payload/"
-
-          # 打包成 IPA
+          cp -r "${{ runner.temp }}/OOMTestTool.xcarchive/Products/Applications/OOMTestTool.app" "$IPA_DIR/Payload/"
           cd "$IPA_DIR"
-          zip -r -9 "${{ env.PROJECT_NAME }}.ipa" Payload/
-
-          echo "✅ IPA created: $IPA_DIR/${{ env.PROJECT_NAME }}.ipa"
-          ls -lh "$IPA_DIR/${{ env.PROJECT_NAME }}.ipa"
+          zip -r -9 "OOMTestTool.ipa" Payload/
+          echo "✅ SwiftUI IPA created"
+          ls -lh "$IPA_DIR/OOMTestTool.ipa"
 
       - name: 📤 Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: OOMTestTool-IPA
-          path: ${{ runner.temp }}/ipa_output/${{ env.PROJECT_NAME }}.ipa
+          name: OOMTestTool-SwiftUI-IPA
+          path: ${{ runner.temp }}/ipa_swiftui/OOMTestTool.ipa
           retention-days: 30
 
       - name: 📤 Upload xcarchive
         uses: actions/upload-artifact@v4
         with:
-          name: OOMTestTool-xcarchive
-          path: ${{ runner.temp }}/${{ env.PROJECT_NAME }}.xcarchive
+          name: OOMTestTool-SwiftUI-xcarchive
+          path: ${{ runner.temp }}/OOMTestTool.xcarchive
           retention-days: 14
+
+  # ──────────────────────────────────────────
+  # Job 3: Legacy UIKit 版（已暂时屏蔽）
+  # 待修复后取消注释以恢复 Legacy 版构建
+  # ──────────────────────────────────────────
+  # build-legacy:
+  #   name: 🔨 Build — Legacy UIKit
+  #   runs-on: macos-latest
+  #   timeout-minutes: 30
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: 🔨 Build for iOS Simulator
+  #       run: |
+  #         xcodebuild build \
+  #           -project OOMTestToolLegacy.xcodeproj \
+  #           -scheme OOMTestToolLegacy \
+  #           -sdk iphonesimulator \
+  #           -destination 'generic/platform=iOS Simulator' \
+  #           -configuration Debug \
+  #           CODE_SIGN_IDENTITY="-" \
+  #           CODE_SIGNING_REQUIRED=NO \
+  #           CODE_SIGNING_ALLOWED=NO \
+  #           ONLY_ACTIVE_ARCH=NO
+  #
+  # archive-legacy:
+  #   name: 📦 IPA — Legacy UIKit (iOS 13+)
+  #   runs-on: macos-latest
+  #   needs: build-legacy
+  #   if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+  #   timeout-minutes: 30
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: 📦 Archive
+  #       run: |
+  #         xcodebuild archive \
+  #           -project OOMTestToolLegacy.xcodeproj \
+  #           -scheme OOMTestToolLegacy \
+  #           -sdk iphoneos \
+  #           -destination 'generic/platform=iOS' \
+  #           -configuration Release \
+  #           -archivePath "${{ runner.temp }}/OOMTestToolLegacy.xcarchive" \
+  #           CODE_SIGN_IDENTITY="-" \
+  #           CODE_SIGNING_REQUIRED=NO \
+  #           CODE_SIGNING_ALLOWED=NO \
+  #           CODE_SIGN_ENTITLEMENTS="" \
+  #           IPHONEOS_DEPLOYMENT_TARGET=13.0 \
+  #           ONLY_ACTIVE_ARCH=NO
+  #     - name: 📱 Create IPA
+  #       run: |
+  #         IPA_DIR="${{ runner.temp }}/ipa_legacy"
+  #         mkdir -p "$IPA_DIR/Payload"
+  #         cp -r "${{ runner.temp }}/OOMTestToolLegacy.xcarchive/Products/Applications/OOMTestToolLegacy.app" "$IPA_DIR/Payload/"
+  #         cd "$IPA_DIR"
+  #         zip -r -9 "OOMTestToolLegacy.ipa" Payload/
+  #     - name: 📤 Upload IPA
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: OOMTestTool-Legacy-IPA
+  #         path: ${{ runner.temp }}/ipa_legacy/OOMTestToolLegacy.ipa
+  #         retention-days: 30

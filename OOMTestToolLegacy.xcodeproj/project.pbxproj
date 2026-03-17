@@ -3,29 +3,33 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A1000001 /* OOMTestToolApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001 /* OOMTestToolApp.swift */; };
-		A1000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002 /* ContentView.swift */; };
-		A1000003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2000003 /* Assets.xcassets */; };
-		A1000004 /* MemoryAllocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000004 /* MemoryAllocator.swift */; };
-		A1000005 /* OOMLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000005 /* OOMLogger.swift */; };
+		B1000001 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000001 /* AppDelegate.swift */; };
+		B1000002 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000002 /* MainViewController.swift */; };
+		B1000003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B2000003 /* Assets.xcassets */; };
+		B1000004 /* MemoryAllocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000004 /* MemoryAllocator.swift */; };
+		B1000005 /* OOMLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000005 /* OOMLogger.swift */; };
+		B1000006 /* HistoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000006 /* HistoryViewController.swift */; };
+		B1000007 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B2000007 /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		A2000001 /* OOMTestToolApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OOMTestToolApp.swift; sourceTree = "<group>"; };
-		A2000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		A2000003 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A2000004 /* MemoryAllocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryAllocator.swift; sourceTree = "<group>"; };
-		A2000005 /* OOMLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OOMLogger.swift; sourceTree = "<group>"; };
-		A2000006 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A3000001 /* OOMTestTool.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OOMTestTool.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B2000001 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		B2000002 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
+		B2000003 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B2000004 /* MemoryAllocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryAllocator.swift; sourceTree = "<group>"; };
+		B2000005 /* OOMLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OOMLogger.swift; sourceTree = "<group>"; };
+		B2000006 /* HistoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewController.swift; sourceTree = "<group>"; };
+		B2000007 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		B2000008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B3000001 /* OOMTestToolLegacy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OOMTestToolLegacy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		A4000001 /* Frameworks */ = {
+		B4000001 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -35,31 +39,33 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A5000001 = {
+		B5000001 = {
 			isa = PBXGroup;
 			children = (
-				A5000002 /* OOMTestTool */,
-				A5000003 /* Products */,
+				B5000002 /* OOMTestToolLegacy */,
+				B5000003 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		A5000002 /* OOMTestTool */ = {
+		B5000002 /* OOMTestToolLegacy */ = {
 			isa = PBXGroup;
 			children = (
-				A2000001 /* OOMTestToolApp.swift */,
-				A2000002 /* ContentView.swift */,
-				A2000004 /* MemoryAllocator.swift */,
-				A2000005 /* OOMLogger.swift */,
-				A2000003 /* Assets.xcassets */,
-				A2000006 /* Info.plist */,
+				B2000001 /* AppDelegate.swift */,
+				B2000002 /* MainViewController.swift */,
+				B2000006 /* HistoryViewController.swift */,
+				B2000004 /* MemoryAllocator.swift */,
+				B2000005 /* OOMLogger.swift */,
+				B2000003 /* Assets.xcassets */,
+				B2000007 /* LaunchScreen.storyboard */,
+				B2000008 /* Info.plist */,
 			);
-			path = OOMTestTool;
+			path = OOMTestToolLegacy;
 			sourceTree = "<group>";
 		};
-		A5000003 /* Products */ = {
+		B5000003 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A3000001 /* OOMTestTool.app */,
+				B3000001 /* OOMTestToolLegacy.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -67,91 +73,91 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A6000001 /* OOMTestTool */ = {
+		B6000001 /* OOMTestToolLegacy */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A8000003 /* Build configuration list for PBXNativeTarget "OOMTestTool" */;
+			buildConfigurationList = B8000003 /* Build configuration list for PBXNativeTarget "OOMTestToolLegacy" */;
 			buildPhases = (
-				A7000001 /* Sources */,
-				A4000001 /* Frameworks */,
-				A7000002 /* Resources */,
+				B7000001 /* Sources */,
+				B4000001 /* Frameworks */,
+				B7000002 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = OOMTestTool;
-			productName = OOMTestTool;
-			productReference = A3000001 /* OOMTestTool.app */;
+			name = OOMTestToolLegacy;
+			productName = OOMTestToolLegacy;
+			productReference = B3000001 /* OOMTestToolLegacy.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		A9000001 /* Project object */ = {
+		B9000001 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
-					A6000001 = {
+					B6000001 = {
 						CreatedOnToolsVersion = 15.0;
 					};
 				};
 			};
-			buildConfigurationList = A8000001 /* Build configuration list for PBXProject "OOMTestTool" */;
-			compatibilityVersion = "Xcode 14.0";
+			buildConfigurationList = B8000001 /* Build configuration list for PBXProject "OOMTestToolLegacy" */;
+			compatibilityVersion = "Xcode 10.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = A5000001;
-			productRefGroup = A5000003 /* Products */;
+			mainGroup = B5000001;
+			productRefGroup = B5000003 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A6000001 /* OOMTestTool */,
+				B6000001 /* OOMTestToolLegacy */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		A7000002 /* Resources */ = {
+		B7000002 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1000003 /* Assets.xcassets in Resources */,
+				B1000003 /* Assets.xcassets in Resources */,
+				B1000007 /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		A7000001 /* Sources */ = {
+		B7000001 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1000001 /* OOMTestToolApp.swift in Sources */,
-				A1000002 /* ContentView.swift in Sources */,
-				A1000004 /* MemoryAllocator.swift in Sources */,
-				A1000005 /* OOMLogger.swift in Sources */,
+				B1000001 /* AppDelegate.swift in Sources */,
+				B1000002 /* MainViewController.swift in Sources */,
+				B1000006 /* HistoryViewController.swift in Sources */,
+				B1000004 /* MemoryAllocator.swift in Sources */,
+				B1000005 /* OOMLogger.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		A8000011 /* Debug */ = {
+		B8000011 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -181,8 +187,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -197,25 +202,23 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
-		A8000012 /* Release */ = {
+		B8000012 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -245,8 +248,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -255,35 +257,30 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.0;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
-		A8000021 /* Debug */ = {
+		B8000021 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS = NO;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = "";
-				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = OOMTestTool/Info.plist;
+				INFOPLIST_FILE = OOMTestToolLegacy/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.oomtest.tool;
+				PRODUCT_BUNDLE_IDENTIFIER = com.oomtest.tool.legacy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -293,26 +290,21 @@
 			};
 			name = Debug;
 		};
-		A8000022 /* Release */ = {
+		B8000022 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS = NO;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = "";
-				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = OOMTestTool/Info.plist;
+				INFOPLIST_FILE = OOMTestToolLegacy/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.oomtest.tool;
+				PRODUCT_BUNDLE_IDENTIFIER = com.oomtest.tool.legacy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -325,20 +317,20 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A8000001 /* Build configuration list for PBXProject "OOMTestTool" */ = {
+		B8000001 /* Build configuration list for PBXProject "OOMTestToolLegacy" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A8000011 /* Debug */,
-				A8000012 /* Release */,
+				B8000011 /* Debug */,
+				B8000012 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A8000003 /* Build configuration list for PBXNativeTarget "OOMTestTool" */ = {
+		B8000003 /* Build configuration list for PBXNativeTarget "OOMTestToolLegacy" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A8000021 /* Debug */,
-				A8000022 /* Release */,
+				B8000021 /* Debug */,
+				B8000022 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -346,5 +338,5 @@
 /* End XCConfigurationList section */
 
 	};
-	rootObject = A9000001 /* Project object */;
+	rootObject = B9000001 /* Project object */;
 }

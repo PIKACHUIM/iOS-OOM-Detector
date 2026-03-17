@@ -1,9 +1,19 @@
 import SwiftUI
 
+// MARK: - Date Formatting Helper
+
+private let dateFormatter: DateFormatter = {
+    let f = DateFormatter()
+    f.dateStyle = .medium
+    f.timeStyle = .medium
+    f.locale = Locale.current
+    return f
+}()
+
 // MARK: - Main Content View
 
 struct ContentView: View {
-    @StateObject private var allocator = MemoryAllocator()
+    @ObservedObject private var allocator = MemoryAllocator()
     
     @State private var chunkSizeText: String = "10"
     @State private var holdTimeText: String = "100"
@@ -15,7 +25,7 @@ struct ContentView: View {
     private let logger = OOMLogger.shared
     
     var body: some View {
-        NavigationStack {
+        NavigationView {
             ScrollView {
                 VStack(spacing: 20) {
                     // 上次崩溃提醒
@@ -27,7 +37,7 @@ struct ContentView: View {
                     // 实时内存监控
                     if allocator.isRunning {
                         MemoryMonitorCard(allocator: allocator)
-                            .transition(.scale.combined(with: .opacity))
+                            .transition(.opacity)
                     }
                     
                     // 参数配置卡片
@@ -57,48 +67,47 @@ struct ContentView: View {
                 .padding(.horizontal, 20)
                 .padding(.top, 8)
             }
-            .background(Color(.systemGroupedBackground))
-            .navigationTitle("OOM 测试工具")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Menu {
-                        Button {
-                            allSessions = logger.getAllSessionSummaries()
-                            showHistory = true
-                        } label: {
-                            Label("历史记录", systemImage: "clock.arrow.circlepath")
-                        }
-                        
-                        Button(role: .destructive) {
-                            showClearAlert = true
-                        } label: {
-                            Label("清除日志", systemImage: "trash")
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis.circle")
+            .background(Color(.systemGroupedBackground).edgesIgnoringSafeArea(.all))
+            .navigationBarTitle(Text("OOM 测试工具"), displayMode: .large)
+            .navigationBarItems(trailing:
+                HStack(spacing: 16) {
+                    Button(action: {
+                        allSessions = logger.getAllSessionSummaries()
+                        showHistory = true
+                    }) {
+                        Image(systemName: "clock.arrow.circlepath")
                             .font(.title3)
                     }
+                    
+                    Button(action: {
+                        showClearAlert = true
+                    }) {
+                        Image(systemName: "trash")
+                            .font(.title3)
+                            .foregroundColor(.red)
+                    }
                 }
-            }
+            )
             .sheet(isPresented: $showHistory) {
                 HistoryView(sessions: allSessions)
             }
-            .alert("清除所有日志", isPresented: $showClearAlert) {
-                Button("取消", role: .cancel) {}
-                Button("清除", role: .destructive) {
-                    logger.clearLogs()
-                    lastSession = nil
-                    allSessions = []
-                }
-            } message: {
-                Text("确定要清除所有测试日志吗？此操作不可撤销。")
+            .alert(isPresented: $showClearAlert) {
+                Alert(
+                    title: Text("清除所有日志"),
+                    message: Text("确定要清除所有测试日志吗？此操作不可撤销。"),
+                    primaryButton: .destructive(Text("清除")) {
+                        logger.clearLogs()
+                        lastSession = nil
+                        allSessions = []
+                    },
+                    secondaryButton: .cancel(Text("取消"))
+                )
             }
         }
+        .navigationViewStyle(StackNavigationViewStyle())
         .onAppear {
             loadLastSession()
         }
-        .animation(.easeInOut(duration: 0.3), value: allocator.isRunning)
-        .animation(.easeInOut(duration: 0.3), value: lastSession?.id)
     }
     
     // MARK: - Actions
@@ -127,12 +136,12 @@ struct LastCrashBanner: View {
             HStack(spacing: 10) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.title2)
-                    .foregroundStyle(.white)
+                    .foregroundColor(.white)
                 
                 Text("检测到上次 OOM 崩溃")
                     .font(.headline)
                     .fontWeight(.bold)
-                    .foregroundStyle(.white)
+                    .foregroundColor(.white)
                 
                 Spacer()
             }
@@ -148,14 +157,14 @@ struct LastCrashBanner: View {
                         value: "\(String(format: "%.0f", session.holdTimeMS)) ms",
                         tint: .white)
                 InfoRow(icon: "calendar", label: "崩溃时间",
-                        value: session.endTime.formatted(date: .abbreviated, time: .standard),
+                        value: dateFormatter.string(from: session.endTime),
                         tint: .white)
             }
         }
         .padding(16)
         .background(
             LinearGradient(
-                colors: [Color.red.opacity(0.85), Color.orange.opacity(0.85)],
+                gradient: Gradient(colors: [Color.red.opacity(0.85), Color.orange.opacity(0.85)]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -186,12 +195,12 @@ struct MemoryMonitorCard: View {
                 // 运行指示器
                 HStack(spacing: 4) {
                     Circle()
-                        .fill(.green)
+                        .fill(Color.green)
                         .frame(width: 8, height: 8)
                         .shadow(color: .green, radius: 4)
                     Text("运行中")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                 }
             }
             
@@ -203,7 +212,7 @@ struct MemoryMonitorCard: View {
                 
                 Text("MB 已分配")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
@@ -248,13 +257,13 @@ struct StatItem: View {
         VStack(spacing: 6) {
             Image(systemName: icon)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundColor(.secondary)
             Text(value)
                 .font(.system(.body, design: .rounded))
                 .fontWeight(.semibold)
             Text(title)
                 .font(.caption2)
-                .foregroundStyle(.secondary)
+                .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity)
     }
@@ -284,12 +293,11 @@ struct ConfigurationCard: View {
             VStack(spacing: 14) {
                 // 单次分配大小
                 HStack(spacing: 12) {
-                    Label {
+                    HStack(spacing: 6) {
+                        Image(systemName: "memorychip")
+                            .foregroundColor(.blue)
                         Text("单次分配")
                             .font(.subheadline)
-                    } icon: {
-                        Image(systemName: "memorychip")
-                            .foregroundStyle(.blue)
                     }
                     
                     Spacer()
@@ -307,7 +315,7 @@ struct ConfigurationCard: View {
                         
                         Text("MB")
                             .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                             .frame(width: 28)
                     }
                 }
@@ -316,12 +324,11 @@ struct ConfigurationCard: View {
                 
                 // 保持时间
                 HStack(spacing: 12) {
-                    Label {
+                    HStack(spacing: 6) {
+                        Image(systemName: "clock")
+                            .foregroundColor(.purple)
                         Text("保持时间")
                             .font(.subheadline)
-                    } icon: {
-                        Image(systemName: "clock")
-                            .foregroundStyle(.purple)
                     }
                     
                     Spacer()
@@ -339,7 +346,7 @@ struct ConfigurationCard: View {
                         
                         Text("ms")
                             .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                             .frame(width: 28)
                     }
                 }
@@ -361,13 +368,13 @@ struct ActionButton: View {
     let onStop: () -> Void
     
     var body: some View {
-        Button {
+        Button(action: {
             if isRunning {
                 onStop()
             } else {
                 onStart()
             }
-        } label: {
+        }) {
             HStack(spacing: 10) {
                 Image(systemName: isRunning ? "stop.fill" : "play.fill")
                     .font(.title3)
@@ -380,21 +387,21 @@ struct ActionButton: View {
             .padding(.vertical, 16)
             .background(
                 LinearGradient(
-                    colors: isRunning
+                    gradient: Gradient(colors: isRunning
                         ? [Color.red, Color.red.opacity(0.8)]
-                        : [Color.accentColor, Color.accentColor.opacity(0.8)],
+                        : [Color.accentColor, Color.accentColor.opacity(0.8)]),
                     startPoint: .leading,
                     endPoint: .trailing
                 )
             )
-            .foregroundStyle(.white)
+            .foregroundColor(.white)
             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             .shadow(
                 color: (isRunning ? Color.red : Color.accentColor).opacity(0.4),
                 radius: 8, y: 4
             )
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
@@ -407,16 +414,16 @@ struct StatusBadge: View {
     var body: some View {
         HStack(spacing: 8) {
             if isRunning {
-                ProgressView()
-                    .scaleEffect(0.8)
+                ActivityIndicator(isAnimating: true)
+                    .frame(width: 16, height: 16)
             } else {
                 Image(systemName: "info.circle")
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
             
             Text(text)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundColor(.secondary)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
@@ -435,7 +442,7 @@ struct AllocationLogCard: View {
             HStack {
                 Image(systemName: "list.bullet.rectangle")
                     .font(.title3)
-                    .foregroundStyle(.indigo)
+                    .foregroundColor(.purple)
                 
                 Text("分配日志")
                     .font(.headline)
@@ -445,19 +452,28 @@ struct AllocationLogCard: View {
                 
                 Text("最近 \(history.count) 条")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
             
-            LazyVStack(spacing: 6) {
-                ForEach(history.reversed()) { record in
+            VStack(spacing: 6) {
+                ForEach(Array(history.reversed())) { record in
                     HStack {
                         Text("#\(record.blockIndex)")
                             .font(.system(.caption, design: .monospaced))
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                             .frame(width: 44, alignment: .leading)
                         
-                        ProgressView(value: min(record.totalMB / 1024, 1.0))
-                            .tint(progressColor(for: record.totalMB))
+                        GeometryReader { geo in
+                            ZStack(alignment: .leading) {
+                                RoundedRectangle(cornerRadius: 3)
+                                    .fill(Color(.systemGray5))
+                                    .frame(height: 6)
+                                RoundedRectangle(cornerRadius: 3)
+                                    .fill(progressColor(for: record.totalMB))
+                                    .frame(width: max(geo.size.width * CGFloat(min(record.totalMB / 1024, 1.0)), 4), height: 6)
+                            }
+                        }
+                        .frame(height: 6)
                         
                         Text("\(String(format: "%.1f", record.totalMB)) MB")
                             .font(.system(.caption, design: .monospaced))
@@ -493,19 +509,19 @@ struct InfoRow: View {
         HStack(spacing: 10) {
             Image(systemName: icon)
                 .font(.caption)
-                .foregroundStyle(tint.opacity(0.8))
+                .foregroundColor(tint.opacity(0.8))
                 .frame(width: 20)
             
             Text(label)
                 .font(.subheadline)
-                .foregroundStyle(tint.opacity(0.8))
+                .foregroundColor(tint.opacity(0.8))
             
             Spacer()
             
             Text(value)
                 .font(.system(.subheadline, design: .rounded))
                 .fontWeight(.semibold)
-                .foregroundStyle(tint)
+                .foregroundColor(tint)
         }
     }
 }
@@ -514,19 +530,19 @@ struct InfoRow: View {
 
 struct HistoryView: View {
     let sessions: [OOMLogger.SessionSummary]
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
-        NavigationStack {
+        NavigationView {
             Group {
                 if sessions.isEmpty {
                     VStack(spacing: 16) {
                         Image(systemName: "tray")
                             .font(.system(size: 48))
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                         Text("暂无测试记录")
                             .font(.headline)
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
@@ -535,17 +551,15 @@ struct HistoryView: View {
                             SessionRow(session: session)
                         }
                     }
-                    .listStyle(.insetGrouped)
+                    .listStyle(GroupedListStyle())
                 }
             }
-            .navigationTitle("历史记录")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("完成") { dismiss() }
-                }
-            }
+            .navigationBarTitle(Text("历史记录"), displayMode: .large)
+            .navigationBarItems(trailing:
+                Button("完成") { presentationMode.wrappedValue.dismiss() }
+            )
         }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 
@@ -558,51 +572,48 @@ struct SessionRow: View {
                 // OOM 标记
                 HStack(spacing: 6) {
                     Circle()
-                        .fill(session.wasOOM ? .red : .green)
+                        .fill(session.wasOOM ? Color.red : Color.green)
                         .frame(width: 10, height: 10)
                     
                     Text(session.wasOOM ? "OOM 崩溃" : "正常结束")
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundStyle(session.wasOOM ? .red : .green)
+                        .foregroundColor(session.wasOOM ? .red : .green)
                 }
                 
                 Spacer()
                 
-                Text(session.startTime.formatted(date: .abbreviated, time: .shortened))
+                Text(dateFormatter.string(from: session.startTime))
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
             
             HStack(spacing: 16) {
-                Label {
+                HStack(spacing: 4) {
+                    Image(systemName: "memorychip")
+                        .font(.caption2)
+                        .foregroundColor(.blue)
                     Text("\(String(format: "%.1f", session.lastTotalMB)) MB")
                         .font(.system(.caption, design: .rounded))
                         .fontWeight(.medium)
-                } icon: {
-                    Image(systemName: "memorychip")
-                        .font(.caption2)
-                        .foregroundStyle(.blue)
                 }
                 
-                Label {
+                HStack(spacing: 4) {
+                    Image(systemName: "square.stack.3d.up")
+                        .font(.caption2)
+                        .foregroundColor(.purple)
                     Text("\(session.lastBlockIndex) 块")
                         .font(.system(.caption, design: .rounded))
                         .fontWeight(.medium)
-                } icon: {
-                    Image(systemName: "square.stack.3d.up")
-                        .font(.caption2)
-                        .foregroundStyle(.purple)
                 }
                 
-                Label {
+                HStack(spacing: 4) {
+                    Image(systemName: "square.split.2x2")
+                        .font(.caption2)
+                        .foregroundColor(.orange)
                     Text("\(String(format: "%.0f", session.chunkMB)) MB/块")
                         .font(.system(.caption, design: .rounded))
                         .fontWeight(.medium)
-                } icon: {
-                    Image(systemName: "square.split.2x2")
-                        .font(.caption2)
-                        .foregroundStyle(.orange)
                 }
             }
         }
@@ -610,8 +621,29 @@ struct SessionRow: View {
     }
 }
 
+// MARK: - UIKit ActivityIndicator Wrapper (iOS 13 compatible)
+
+struct ActivityIndicator: UIViewRepresentable {
+    var isAnimating: Bool
+    
+    func makeUIView(context: Context) -> UIActivityIndicatorView {
+        let indicator = UIActivityIndicatorView(style: .medium)
+        return indicator
+    }
+    
+    func updateUIView(_ uiView: UIActivityIndicatorView, context: Context) {
+        if isAnimating {
+            uiView.startAnimating()
+        } else {
+            uiView.stopAnimating()
+        }
+    }
+}
+
 // MARK: - Preview
 
-#Preview {
-    ContentView()
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
 }
