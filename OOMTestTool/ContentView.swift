@@ -67,10 +67,11 @@ struct ContentView: View {
                             Label("历史记录", systemImage: "clock.arrow.circlepath")
                         }
                         
-                        Button(role: .destructive) {
+                        Button {
                             showClearAlert = true
                         } label: {
                             Label("清除日志", systemImage: "trash")
+                                .foregroundColor(.red)
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle")
@@ -79,15 +80,17 @@ struct ContentView: View {
             .sheet(isPresented: $showHistory) {
                 HistoryView(sessions: allSessions)
             }
-            .alert("清除所有日志", isPresented: $showClearAlert) {
-                Button("取消", role: .cancel) {}
-                Button("清除", role: .destructive) {
-                    logger.clearLogs()
-                    lastSession = nil
-                    allSessions = []
-                }
-            } message: {
-                Text("确定要清除所有测试日志吗？此操作不可撤销。")
+            .alert(isPresented: $showClearAlert) {
+                Alert(
+                    title: Text("清除所有日志"),
+                    message: Text("确定要清除所有测试日志吗？此操作不可撤销。"),
+                    primaryButton: .cancel(Text("取消")),
+                    secondaryButton: .destructive(Text("清除")) {
+                        logger.clearLogs()
+                        lastSession = nil
+                        allSessions = []
+                    }
+                )
             }
         }
         .onAppear {
