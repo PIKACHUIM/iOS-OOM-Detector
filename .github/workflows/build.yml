@@ -1,0 +1,101 @@
+name: Build OOM Test Tool
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+env:
+  PROJECT_NAME: OOMTestTool
+  SCHEME: OOMTestTool
+  XCODEPROJ: OOMTestTool.xcodeproj
+  DESTINATION_IOS: "platform=iOS Simulator,name=iPhone 16,OS=latest"
+  DESTINATION_IPAD: "platform=iOS Simulator,name=iPad Pro 13-inch (M4),OS=latest"
+
+jobs:
+
+  # ──────────────────────────────────────────
+  # Job 1: 构建 + 测试（iOS Simulator）
+  # ──────────────────────────────────────────
+  build-ios:
+    name: 🔨 Build iOS
+    runs-on: macos-15
+    timeout-minutes: 30
+
+    strategy:
+      matrix:
+        destination:
+          - "platform=iOS Simulator,name=iPhone 16,OS=latest"
+          - "platform=iOS Simulator,name=iPad Pro 13-inch (M4),OS=latest"
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔧 Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
+
+      - name: 📋 Show Build Environment
+        run: |
+          xcodebuild -version
+          xcodebuild -showsdks | head -20
+          swift --version
+
+      - name: 🧹 Clean Build Folder
+        run: |
+          xcodebuild clean \
+            -project "${{ env.XCODEPROJ }}" \
+            -scheme "${{ env.SCHEME }}" \
+            -destination '${{ matrix.destination }}' \
+            | xcpretty || true
+
+      - name: 🔨 Build
+        run: |
+          xcodebuild build \
+            -project "${{ env.XCODEPROJ }}" \
+            -scheme "${{ env.SCHEME }}" \
+            -destination '${{ matrix.destination }}' \
+            -configuration Debug \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcpretty && exit ${PIPESTATUS[0]}
+
+  # ──────────────────────────────────────────
+  # Job 2: 归档（Release Archive）
+  # ──────────────────────────────────────────
+  archive:
+    name: 📦 Archive
+    runs-on: macos-15
+    needs: build-ios
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    timeout-minutes: 30
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔧 Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
+
+      - name: 📦 Archive for iOS (Generic)
+        run: |
+          xcodebuild archive \
+            -project "${{ env.XCODEPROJ }}" \
+            -scheme "${{ env.SCHEME }}" \
+            -destination "generic/platform=iOS" \
+            -configuration Release \
+            -archivePath "${{ runner.temp }}/${{ env.PROJECT_NAME }}.xcarchive" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcpretty && exit ${PIPESTATUS[0]}
+
+      - name: 📤 Upload Archive Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OOMTestTool-archive
+          path: ${{ runner.temp }}/${{ env.PROJECT_NAME }}.xcarchive
+          retention-days: 14
